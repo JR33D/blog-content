@@ -1,6 +1,6 @@
 ﻿# blog-content
 
-External blog content repo for [jreed.me](https://jreed.me).
+External blog content repo for [resume.jreed.me](https://resume.jreed.me).
 
 ## Structure
 
