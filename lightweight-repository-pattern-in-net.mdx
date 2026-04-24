@@ -1,0 +1,185 @@
+---
+title: Lightweight Repository Pattern in .NET
+date: "2026-04-23"
+tags: ["ADO.NET", "C#", ".NET", "Dapper"]
+read: 5
+excerpt: Explore how to structure clean, maintainable data access in .NET using the repository pattern and a custom database context, powered by Dapper or ADO.NET.
+---
+
+## The Problem with Going Full Entity Framework
+
+Entity Framework Core is a powerful ORM, but it comes with real costs: migration sprawl, change tracking overhead, and a learning curve that can slow teams down on smaller projects. If you're building something lean — a budget tracker, an internal tool, a microservice — you might not need all of that.
+
+What you *do* still want is structure. Raw SQL scattered across your services is hard to test, hard to read, and harder to maintain. The repository pattern gives you EF-like organization without pulling in a full ORM.
+
+This post walks through the approach used in a real project: a `DatabaseContext` abstraction over Dapper, a generic `BaseRepository`, and a fluent `SqlQueryBuilder` — all wired up with dependency injection.
+
+---
+
+## The Database Context
+
+The first building block is an `IDatabaseContext` interface that wraps the low-level connection and exposes typed async query methods:
+
+```csharp
+public interface IDatabaseContext
+{
+    IDbConnection CreateConnection();
+    Task<IEnumerable<T>> QueryAsync<T>(string sql, object? param = null);
+    Task<T?> QuerySingleAsync<T>(string sql, object? param = null);
+    Task<int> ExecuteAsync(string sql, object? param = null);
+}
+```
+
+The concrete `DatabaseContext` delegates connection creation to an `IDatabaseConnectionFactory`, then uses Dapper's extension methods under the hood:
+
+```csharp
+public class DatabaseContext : IDatabaseContext
+{
+    private readonly IDatabaseConnectionFactory _connectionFactory;
+
+    public DatabaseContext(IDatabaseConnectionFactory connectionFactory)
+    {
+        _connectionFactory = connectionFactory;
+    }
+
+    public IDbConnection CreateConnection() => _connectionFactory.CreateConnection();
+
+    public async Task<IEnumerable<T>> QueryAsync<T>(string sql, object? param = null)
+    {
+        using var conn = CreateConnection();
+        return await conn.QueryAsync<T>(sql, param);
+    }
+
+    public async Task<T?> QuerySingleAsync<T>(string sql, object? param = null)
+    {
+        using var conn = CreateConnection();
+        return await conn.QuerySingleOrDefaultAsync<T>(sql, param);
+    }
+
+    public async Task<int> ExecuteAsync(string sql, object? param = null)
+    {
+        using var conn = CreateConnection();
+        return await conn.ExecuteAsync(sql, param);
+    }
+}
+```
+
+Each method opens a connection, runs the query, and disposes — no persistent state, no change tracking. The `IDatabaseConnectionFactory` is where you swap between PostgreSQL, SQLite, or anything else `IDbConnection` supports.
+
+---
+
+## The Base Repository
+
+With `IDatabaseContext` in place, a generic base repository becomes straightforward. It holds a reference to the context and provides the common CRUD building blocks that specific repositories inherit from:
+
+```csharp
+public abstract class BaseRepository<T>
+{
+    protected readonly IDatabaseContext _dbContext;
+
+    protected BaseRepository(IDatabaseContext dbContext)
+    {
+        _dbContext = dbContext;
+    }
+
+    protected Task<IEnumerable<T>> QueryAsync(string sql, object? param = null)
+        => _dbContext.QueryAsync<T>(sql, param);
+
+    protected Task<T?> QuerySingleAsync(string sql, object? param = null)
+        => _dbContext.QuerySingleAsync<T>(sql, param);
+
+    protected Task<int> ExecuteAsync(string sql, object? param = null)
+        => _dbContext.ExecuteAsync(sql, param);
+}
+```
+
+Concrete repositories then extend this with their own interface and any entity-specific queries:
+
+```csharp
+public class UserRepository : BaseRepository<UserModel>, IUserRepository
+{
+    public UserRepository(IDatabaseContext dbContext) : base(dbContext) { }
+
+    public Task<UserModel?> GetByEmailAsync(string email)
+    {
+        var sql = "SELECT * FROM users WHERE email = @Email LIMIT 1";
+        return QuerySingleAsync(sql, new { Email = email });
+    }
+}
+```
+
+If a repository has no custom methods yet, the body is empty — it still gets the base operations and the interface type-safety for free.
+
+---
+
+## The SQL Query Builder
+
+Writing raw SQL strings is fine for simple queries, but as filtering and sorting logic grows, string concatenation becomes error-prone. The `SqlQueryBuilder` provides a fluent API that composes parameterized SQL safely:
+
+```csharp
+var (sql, parameters) = new SqlQueryBuilder()
+    .Select("id", "email", "created_at")
+    .From("users")
+    .Where("is_active =", true)
+    .And("created_at >", DateTime.UtcNow.AddDays(-30))
+    .OrderBy("created_at", "DESC")
+    .Limit(20)
+    .Build();
+
+var users = await _dbContext.QueryAsync<UserModel>(sql, parameters);
+```
+
+Each call to `Where`, `And`, or `Or` registers a `@p0`, `@p1`... parameter into a Dapper `DynamicParameters` object, so user input never touches the SQL string directly. `Build()` returns both the final SQL and the parameter bag together:
+
+```csharp
+public (string Sql, DynamicParameters Parameters) Build()
+{
+    if (string.IsNullOrEmpty(_from)) throw new InvalidOperationException("No table specified");
+
+    var sb = new StringBuilder();
+    sb.Append($"SELECT {(_select.Count > 0 ? string.Join(", ", _select) : "*")} FROM {_from} ");
+
+    if (_joins.Count > 0)  sb.Append(string.Join(" ", _joins) + " ");
+    if (_where.Count > 0)  sb.Append("WHERE " + string.Join(" ", _where) + " ");
+    if (_order.Count > 0)  sb.Append("ORDER BY " + string.Join(", ", _order) + " ");
+    if (_limit.HasValue)   sb.Append("LIMIT " + _limit.Value + " ");
+    if (_offset.HasValue)  sb.Append("OFFSET " + _offset.Value);
+
+    return (sb.ToString().Trim(), _parameters);
+}
+```
+
+---
+
+## Wiring It Up with DI
+
+Everything gets registered in `Program.cs` or your DI setup:
+
+```csharp
+builder.Services.Configure<DatabaseConfiguration>(
+    builder.Configuration.GetSection("Database"));
+
+builder.Services.AddSingleton<IValidateOptions<DatabaseConfiguration>,
+    DatabaseConfigurationOptions>();
+
+builder.Services.AddSingleton<IDatabaseConnectionFactory, DatabaseConnectionFactory>();
+builder.Services.AddScoped<IDatabaseContext, DatabaseContext>();
+
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserSettingRepository, UserSettingRepository>();
+```
+
+The `DatabaseConfigurationOptions` class validates the configuration at startup — required host and port for PostgreSQL, a valid path for SQLite — so misconfigured environments fail fast before any queries run.
+
+---
+
+## What You Get
+
+This stack gives you most of the structural benefits of Entity Framework without the overhead:
+
+- **Testable** — swap `IDatabaseContext` for a mock or an in-memory SQLite instance in tests
+- **Transparent** — the SQL you write is the SQL that runs, no query translation surprises
+- **Flexible** — Dapper maps to any `IDbConnection`, so switching between PostgreSQL and SQLite is a factory swap
+- **Lightweight** — no migration runtime, no change tracker, no proxy classes
+
+It's not the right fit for every project. If you have complex object graphs, lots of relationships, or a team already fluent in EF Core, EF is probably still the better call. But for projects where you want control over your queries and a clean, layered architecture without the weight — this pattern holds up well.

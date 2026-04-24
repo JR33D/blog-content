@@ -1,0 +1,27 @@
+[
+  {
+    "_template": "Copy this object and remove this key to add a new article",
+    "slug": "your-article-slug",
+    "title": "Your Article Title",
+    "date": "YYYY-MM-DD",
+    "tags": [
+      "Tag1",
+      "Tag2"
+    ],
+    "read": 5,
+    "excerpt": "One or two sentence summary shown in the article list."
+  },
+  {
+    "slug": "lightweight-repository-pattern-in-net",
+    "title": "Lightweight Repository Pattern in .NET",
+    "date": "2026-04-23",
+    "tags": [
+      "ADO.NET",
+      "C#",
+      ".NET",
+      "Dapper"
+    ],
+    "read": 5,
+    "excerpt": "Explore how to structure clean, maintainable data access in .NET using the repository pattern and a custom database context, powered by Dapper or ADO.NET."
+  }
+]
