@@ -1,0 +1,93 @@
+---
+title: The Crutch and the Creeping Doubt: How AI Is Deepening Imposter Syndrome
+date: "2026-06-12"
+tags: ["AI", "Engineering", "Career"]
+read: 10
+excerpt: AI tools are making engineers faster. They may also be making imposter syndrome worse, and the feedback loop is more insidious than most teams are willing to admit.
+---
+
+## When the tool becomes the answer
+
+There is a pattern showing up on engineering teams. Someone gets a new task, maybe an API integration they haven't touched before or a framework they don't know. Before they've even skimmed the docs, they've got ChatGPT open. Copilot is already suggesting completions. The code appears. It works, mostly. They ship it.
+
+Ask them how it works, and you get a pause.
+
+This isn't a story about lazy engineers. It's about scared ones. And AI, which was supposed to help, may be making things worse.
+
+## What imposter syndrome actually is
+
+Imposter syndrome isn't just feeling nervous before a big presentation. For engineers, it's a persistent, low-grade anxiety that you don't actually know what you're doing. That you were hired by accident. That the gap between what people think you know and what you actually know is eventually going to surface, and when it does, it'll be catastrophic.
+
+Around 70% of people report experiencing it at some point. In tech, that number is probably higher. The field rewards certainty and punishes public ignorance. Admitting you don't know something can feel career-ending, even when it isn't.
+
+It's especially common in early-career engineers and people from non-traditional backgrounds. But it also shows up in experienced engineers who have spent a decade in one corner of the stack and quietly convinced themselves they should know more than they do. Ten years of narrow experience can feel like fraud when someone asks you to step outside it.
+
+## The feedback loop
+
+You're asked to do something you're not sure about. Instead of sitting with the discomfort and working through it, you ask an AI. The AI gives you something that looks right. You ship it. You didn't actually learn anything. Next time the same thing happens, but the threshold for reaching for the model is a little lower, because that's what worked last time.
+
+The skill doesn't build. The confidence doesn't build. The dependency does.
+
+This is different from using AI as a productivity multiplier. There's a real difference between "I know how to do this, AI helps me do it faster" and "I don't know how to do this, AI does it for me." The second one is the crutch. And it compounds.
+
+It compounds with imposter syndrome specifically because imposter syndrome is a belief that you don't deserve to be here. Using AI as a proxy for knowledge you don't have seems to confirm that belief. You're not learning your way out of the feeling. You're renting someone else's competence and hoping nobody checks the receipt.
+
+## The confidence-knowledge gap
+
+AI can make you look more competent than you are in the short term. You complete tickets. You answer questions (by quickly consulting the model). You move fast.
+
+But in a PR review, or in an architecture discussion where someone asks "why did you structure it this way?" That's when the gap shows up. For someone already convinced they don't belong, that moment isn't just embarrassing. It confirms the story they've been telling themselves.
+
+The engineer who uses AI as leverage doesn't feel this as sharply. They have enough underlying knowledge to course-correct, push back on bad suggestions, recognize when the model is confidently wrong. The engineer using AI as a crutch doesn't have that buffer. Every explanation they give is one layer removed from understanding they actually have.
+
+It also changes how you respond to being wrong. Engineers who actually know why things work take a correction and integrate it. Engineers with imposter syndrome often spiral. Getting caught in a knowledge gap reinforces the belief that the gap is total, that it's only a matter of time before everyone figures it out.
+
+## What teams aren't seeing
+
+Most engineering teams aren't having this conversation. There's cultural pressure to be enthusiastic about AI tooling. "Look how fast we're shipping." "Look how much less boilerplate we're writing." These are real benefits, and I'm not arguing we should abandon the tools.
+
+But there's a willful blindness to what's happening at the individual level. Velocity metrics go up. Understanding metrics (they don't exist formally, but you can feel them in code reviews and debugging sessions) go down.
+
+Senior engineers have noticed. "I'm seeing more PRs from junior devs with code they can't explain" is something I've heard more than once in the last year. That's not a character flaw in the junior engineer. They're doing what the tooling enables. But it's a signal.
+
+The engineers most at risk are also the least likely to raise their hand and say "I don't actually understand what this code is doing." Because raising that hand is exactly what imposter syndrome tells you not to do. The AI provides a very convenient way to never have to raise it.
+
+## Skill atrophy
+
+Senior engineers aren't immune to this either. Some are over-relying on AI and slowly losing capabilities they used to have.
+
+Debugging instinct. The ability to read an unfamiliar codebase cold and understand what it's doing. The experience of hitting a wall, trying five things, and eventually finding the one that works, and understanding why. That experience is how you build pattern recognition.
+
+AI short-circuits a lot of it. When you're stuck, the model is right there. You don't sit with the problem long enough for it to teach you anything. You get the answer and move on.
+
+This matters more than it sounds. A lot of what experienced engineers know is pattern matching built from struggle. "I've seen this error before, last time it was a missing null check at the deserialization layer." "This kind of memory leak usually shows up when you hold a reference you don't realize you're holding." These patterns come from suffering through the problem, not from being handed the solution.
+
+Skip the struggle consistently and the patterns don't develop. Then when you're in a situation where the AI can't help (a production incident on an unfamiliar system, a subtle race condition), you find out you're less capable than you thought.
+
+That's its own version of imposter syndrome. Except this time, it's earned.
+
+## What helps (and what doesn't)
+
+I don't have a clean answer here. I'm suspicious of anyone who says they do.
+
+That said, one thing that consistently seems to matter is deliberate struggle time. Not suffering for its own sake, but setting a rule: 30 minutes on a problem before opening the model. Read the error. Read the docs. Form a hypothesis. The discomfort is the point. That's where learning lives. You won't always have 30 minutes to spare, but making it the default changes what your brain does when it's stuck.
+
+The other thing that seems to help is treating explanation as a check on real understanding. If you can't explain the code you just shipped, why it's structured the way it is, what would break it, what alternatives you considered, that's worth paying attention to. Some teams are starting to ask these questions in PR review, not as a gotcha, but because they want to know. The model of "generate and approve" produces output that nobody fully understands, which becomes a problem the first time something breaks.
+
+There's also something to be said for using AI deliberately. Boilerplate, test scaffolding, repetitive refactors: the model handles those well without eroding the skill underneath. The model designing your entire auth flow or your data model while you approve it without really reading it is a different situation. The output looks the same. What you learned is completely different.
+
+The underlying problem, though, isn't really about AI habits. It's that genuine competence is the only thing that actually fixes imposter syndrome. You can't rent your way to feeling like you belong. You have to earn it, gradually, with the kind of friction that AI makes easy to avoid.
+
+## The uncomfortable part
+
+AI didn't invent imposter syndrome. It predates generative models by decades.
+
+But it's given the syndrome a more effective mechanism. The old version was: I don't know this, I'll pretend I do and hope nobody looks closely. The new version is the same thing, but the pretending is outsourced to a model that's very good at sounding correct.
+
+The inner experience doesn't change. The feeling of being one question away from exposure. The exhaustion of maintaining the performance. The relief when the sprint ends and nobody asked the hard question.
+
+What changes is that the new version is much easier to sustain. And the longer you sustain it, the harder it is to exit, because you're not building the competence that would make the feeling go away.
+
+Engineers dealing with this don't need to hear that they should use AI less. They need to understand that the shortcut isn't shortcutting anything. It's deferring the reckoning while making it worse. Slowing down enough to actually learn something isn't virtuous. It's just the only thing that works.
+
+Velocity without understanding is technical debt with feelings.

@@ -1,5 +1,17 @@
 [
   {
+    "slug": "ai-imposter-syndrome",
+    "title": "The Crutch and the Creeping Doubt: How AI Is Deepening Imposter Syndrome",
+    "date": "2026-06-12",
+    "tags": [
+      "AI",
+      "Engineering",
+      "Career"
+    ],
+    "read": 10,
+    "excerpt": "AI tools are making engineers faster. They may also be making imposter syndrome worse — and the feedback loop is more insidious than most teams are willing to admit."
+  },
+  {
     "slug": "lightweight-repository-pattern-in-net",
     "title": "Lightweight Repository Pattern in .NET",
     "date": "2026-04-23",
